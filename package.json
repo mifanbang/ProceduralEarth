@@ -1,0 +1,23 @@
+{
+  "name": "proc_earth",
+  "version": "1.0.0",
+  "description": "Global warming is here",
+  "main": "build.js",
+  "dependencies": {
+    "@types/dat-gui": ">=0.6.3",
+    "@types/jquery": "3.2.5",
+    "@types/node": "^8.5.1",
+    "@types/stats": "0.16.x",
+    "@types/three": "^0.84.35",
+    "gulp": ">=3.9",
+    "gulp-typescript": ">=3.2",
+    "gulp-cli": ">=1.4",
+    "typescript": "^2.6.2"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "gulp"
+  },
+  "author": "Mifan Bang",
+  "license": "MIT"
+}

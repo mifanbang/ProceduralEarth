@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="description" content="WebGL application that procedurally generates virtual Earth-like planets">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+		<meta property="og:title" content="Procedural Earth">
+		<meta property="og:url" content="https://debug.tw/proc_earth/play">
+		<meta property="og:image" content="https://debug.tw/proc_earth/thumbnail.jpg">
+		<meta property="og:description" content="Global Warming is Here">
+		<title>Procedural Earth</title>
+		<link rel="icon" type="image/png" href="https://debug.tw/proc_earth/favicon-64x64.png" sizes="64x64">
+		<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Open+Sans:300">
+		<style>
+			body {
+				background-color: black;
+				border: 0px;
+				margin: 0px;
+				overflow: hidden;
+				font-family: "Open Sans", "Arial", sans-serif;
+			}
+			div {
+				box-sizing: border-box;
+			}
+			#blocker {
+				background-color: black;
+				position: absolute;
+				width: 100%;
+				height: 100%;
+				opacity: 0.5;
+				z-index: 100;
+				visibility: hidden;
+			}
+			.modal {
+				position: absolute;
+				left: 50%;
+				top: 50%;
+				padding: 10%;
+				background-color: #EFEFEF;
+				visibility: hidden;
+				z-index: 101;
+			}
+			.msgbox {
+				padding: 30px;
+				max-width: 100%;
+			}
+			.msgbox .text {
+				float: right;
+			}
+			#error {
+				max-width: 100%;
+				width: 100%;
+				height: 100%;
+			}
+			#info {
+				width: 400px;
+				height: 248px;
+			}
+			#info .text {
+				max-width: 100%;
+				width: 340px;
+				height: 150px;
+				font-size: 14px;
+				line-height: 1.43em;
+			}
+			#info .title {
+				font-size: 24px;
+				line-height: 1em;
+			}
+			#info .copyright {
+				padding-top: 0.5em;
+			}
+			#info .links {
+				padding-top: 1.3em;
+			}
+			#info .links i {
+				font-size: 16px;
+				line-height: 1.43em;
+			}
+			#info a {
+				text-decoration: none;
+			}
+			#share {
+				width: 640px;
+				height: 190px;
+			}
+			#share .text {
+				width: 580px;
+				height: 92px;
+			}
+			#share #shared_url {
+				width: 580px;
+				height: 30px;
+				box-sizing: border-box;
+				border: 1px solid #989898;
+				padding-left: 5px;
+				padding-right: 5px;
+				margin-top: 10px;
+				font-family: 'Open Sans', 'Arial', sans-serif;
+				font-size: 16px;
+			}
+			.modal .button {
+				background-color: #1C7CF3;
+				float: right;
+				width: 120px;
+				padding-top: 5px;
+				padding-bottom: 5px;
+				color: white;
+				text-align: center;
+				line-height: 28px;
+			}
+			.button {
+				cursor: pointer;
+				margin: 6px;
+			}
+			.msg {
+				font-size: 18px;
+			}
+			.modal #detail {
+				font-size: 14px;
+				color: #338888;
+			}
+			.overlay {
+				position: absolute;
+				top: 0px;
+				left: 100%;
+				margin-left: -270px;
+				width: 250px;
+				padding-top: 10px;
+				color: #AAAAAA;
+				visibility: hidden;
+			}
+		</style>
+	</head>
+
+	<body>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+		<script src="dep/three-r86.js"></script>
+		<script src="dep/stats-r16.js"></script>
+		<script src="dep/dat.gui-0.6.3.js"></script>
+		<script src="dep/TrackballControls.js"></script>
+		<script src="dep/OrbitControls.js"></script>
+
+		<script src="airmass.js"></script>
+		<script src="proc_earth.js"></script>
+
+		<div class="overlay" id="button_list">
+			<div class="button" id="btn_info"><i class="fa fa-info-circle fa-2x fa-fw" aria-hidden="true"></i></div>
+			<div class="button" id="btn_config"><i class="fa fa-cogs fa-2x fa-fw" aria-hidden="true"></i></div>
+			<div class="button" id="btn_share"><i class="fa fa-bullhorn fa-2x fa-fw" aria-hidden="true"></i></div>
+			<div class="button" id="btn_screenshot"><i class="fa fa-camera-retro fa-2x fa-fw" aria-hidden="true"></i></div>
+		</div>
+
+		<div class="modal msg" id="error">
+			Oops! The Procedural Earth encountered some error...<br>Here are some details:<br>
+			<p><span id="detail">description</span></p>
+			<br><br>We strongly recommend using the latest version of Chrome, Firefox, or Safari for the best WebGL experience.
+		</div>
+
+		<div class="modal msg msgbox" id="share">
+			<div class="text">
+				<form onsubmit="javascript: return false;">
+					The URL has been copied. Your Earth can now be shared with others.
+					<input type="text" id="shared_url" value="https://debug.tw">
+				</form>
+			</div>
+			<div class="button" id="btn_close">Close</div>
+		</div>
+
+		<div class="modal msg msgbox" id="info">
+			<div class="text">
+				<span class="title">Procedural Earth <i class="fa fa-globe" aria-hidden="true"></i></span><br>
+				<div class="copyright">Copyright &copy; 2017 Mifan Bang.<br>Made with love from Tâipak, Tâioân.</div>
+				<div class="links">
+					<i class="fa fa-home fa-fw" aria-hidden="true"></i> <a href="https://debug.tw/proc_earth" target="_blank">https://debug.tw/proc_earth</a><br>
+					<i class="fa fa-code-fork fa-fw" aria-hidden="true"></i> <a href="https://github.com/mifanbang/ProceduralEarth" target="_blank">mifanbang/ProceduralEarth</a>
+				</div>
+			</div>
+			<div class="button" id="btn_close">Close</div>
+		</div>
+
+		<div id="blocker"></div>
+
+	</body>
+</html>

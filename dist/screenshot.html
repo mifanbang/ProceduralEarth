@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="description" content="WebGL application that procedurally generates virtual Earth-like planets">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+		<meta property="og:title" content="WebGL Procedural Earth">
+		<meta property="og:url" content="https://debug.tw/proc_earth/play">
+		<meta property="og:image" content="https://debug.tw/proc_earth/thumbnail.jpg">
+		<meta property="og:description" content="Global Warming is Here">
+		<title>Take Me to the Moon</title>
+		<link rel="icon" type="image/png" href="https://debug.tw/proc_earth/favicon-64x64.png" sizes="64x64">
+		<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Open+Sans:300">
+		<style>
+			body {
+				background-color: #EFEFEF;
+				border: 0px;
+				margin: 0px;
+				font-family: "Open Sans", "Arial", sans-serif;
+				text-align: center;
+			}
+			div {
+				box-sizing: border-box;
+				width: 100%;
+				padding: 2%;
+				max-width: 100%;
+			}
+			img {
+				margin-top: 10px;
+				max-width: 100%;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div>
+			Now you can right-click and save the image below.<br>
+			<img id="screenshot_container">
+		</div>
+
+		<script type="text/javascript">
+			// interaction with Screenshot.ts
+			var funcTrySetImage = function () {
+				if (typeof window.opener !== 'undefined' && typeof window.opener.screenshot !== 'undefined') {
+					var container = document.getElementById('screenshot_container');
+					if (typeof container !== 'undefined')
+						container.src = window.opener.screenshot;
+				}
+				else
+					setTimeout(funcTrySetImage, 100); 
+			};
+			funcTrySetImage();
+		</script>
+	</body>
+</html>

@@ -22,6 +22,60 @@ const src = {
 
 
 
+// Gulp tasks ------------------------------------------------------------------
+
+var buildtl_shader = MakeFunc_BuildTool(src.tlShaderBuilder, 'build/build_shaders.js');
+var buildtl_airmass = MakeFunc_BuildTool(src.tlAirMassBuilder, 'build/build_airmass.js');
+var runtl_shader = MakeFunc_RunTool('build/build_shaders.js', 'src/ts/Generated/ShaderArchive.ts', src.glsl);
+var runtl_airmass = MakeFunc_RunTool('build/build_airmass.js', 'src/ts/Generated/AirMassData.ts');
+
+function TaskMain(callback) {
+	let hasError = false;
+
+	let tsProject = ts.createProject('tsconfig.json');
+	tsProject.src()
+		.pipe(tsProject())
+		.on('error', () => {
+			hasError = true;
+			callback(new Error('Compilation error in main scripts'));
+		} )
+		.pipe(gulp.dest('./'))
+		.on('finish', () => {
+			if (!hasError)
+				callback();
+		} );
+}
+
+// setting display names
+buildtl_shader.displayName = 'buildtl_shader';
+buildtl_airmass.displayName = 'buildtl_airmass';
+runtl_shader.displayName = 'runtl_shader';
+runtl_airmass.displayName = 'runtl_airmass';
+TaskMain.displayName = 'main';
+
+
+gulp.task('shader', gulp.series(buildtl_shader, runtl_shader));
+gulp.task('airmass', gulp.series(buildtl_airmass, runtl_airmass));
+
+var main = gulp.series(gulp.parallel('shader', 'airmass'), TaskMain);
+gulp.task('default', main);
+
+
+gulp.task('watch', function () {
+	var watchList = [
+		src.proj,
+		src.tsAll.concat(src.tsGenerated.map( (item) => '!'+item )),  // exclude generated TS files
+		src.glsl,
+		src.tlShaderBuilder,
+		src.tlAirMassBuilder
+	];
+
+	gulp.watch(watchList, main)
+		.on('error', () => {} );  // capture error to continure running
+} );
+
+
+
 // stream related --------------------------------------------------------------
 
 function filter(funcEach, funcEnd) {
@@ -102,7 +156,7 @@ function MakeFunc_BuildTool(srcFiles, outFile) {
 			} )
 			.on('finish', () => {
 				if (!hasError) {
-					stream.pipe(gulp.dest(''))
+					stream.pipe(gulp.dest('./'))
 						.on('finish', () => resolve() );
 				}
 			} );
@@ -110,8 +164,8 @@ function MakeFunc_BuildTool(srcFiles, outFile) {
 
 	return function (callback) {
 		new Promise(funcCompileTool)
-			.then( () => callback() )  // on success
-			.catch( () => callback('Failed to build ' + outFile) );
+			.then( () => callback() )
+			.catch( () => callback(new Error('Failed to build tool ' + outFile)) );
 	};
 }
 
@@ -134,7 +188,7 @@ function MakeFunc_RunTool(script, target, inputs) {
 				} );
 			} )
 			.then( () => callback() )
-			.catch( () => callback('Failed to run ' + script) ) ;
+			.catch( () => callback(new Error('Failed to run tool ' + script)) ) ;
 
 		if (typeof inputs !== 'undefined') {
 			let stream = gulp.src(inputs)
@@ -150,45 +204,4 @@ function MakeFunc_RunTool(script, target, inputs) {
 		}
 	}
 }
-
-
-
-// tasks -----------------------------------------------------------------------
-
-gulp.task('tool_shader', MakeFunc_BuildTool(src.tlShaderBuilder, 'build/build_shaders.js'));
-gulp.task('tool_airmass', MakeFunc_BuildTool(src.tlAirMassBuilder, 'build/build_airmass.js'));
-
-
-gulp.task('shader', ['tool_shader'], MakeFunc_RunTool('build/build_shaders.js', 'src/ts/Generated/ShaderArchive.ts', src.glsl));
-gulp.task('airmass', ['tool_airmass'], MakeFunc_RunTool('build/build_airmass.js', 'src/ts/Generated/AirMassData.ts'));
-
-
-gulp.task('main', ['shader', 'airmass'], function (callback) {
-	let hasError = false;
-
-	let tsProject = ts.createProject('tsconfig.json');
-	tsProject.src()
-		.pipe(tsProject())
-		.on('error', () => {
-			hasError = true;
-			callback('Compilation error in main scripts');
-		} )
-		.pipe(gulp.dest(''))
-		.on('finish', () => {
-			if (!hasError)
-				callback();
-		} );
-} );
-
-
-gulp.task('default', ['main']);
-
-
-gulp.task('watch', function () {
-	gulp.watch(src.proj, ['main']);
-	gulp.watch(src.tsAll.concat(src.tsGenerated.map( (item) => '!'+item )), ['main']);  // only authored TS files
-	gulp.watch(src.glsl, ['main']);
-	gulp.watch(src.tlShaderBuilder, ['main']);
-	gulp.watch(src.tlAirMassBuilder, ['main']);
-} );
 

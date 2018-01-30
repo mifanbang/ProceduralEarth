@@ -36,7 +36,7 @@ export class Exposure {
 		return this.currentEV;
 	}
 
-	static CalculateEV(histogram: Float32Array) : number {
+	static CalculateEV(histogram: Array<number>) : number {
 		const minPercentage = 0.8;
 		const maxPercentage = 0.98;
 

@@ -133,7 +133,7 @@ export class Histogram {
 			this.InitStaticResources(geoRepo);
 	}
 
-	Calculate(renderer: THREE.WebGLRenderer, camera: THREE.Camera, src: THREE.WebGLRenderTarget, dst: THREE.WebGLRenderTarget) : Float32Array {
+	Calculate(renderer: THREE.WebGLRenderer, camera: THREE.Camera, src: THREE.WebGLRenderTarget, dst: THREE.WebGLRenderTarget) : Array<number> {
 		// GPU compute
 		Histogram.sharedResources.passHistogram.Render(renderer, camera, src, dst);
 
@@ -167,17 +167,17 @@ export class Histogram {
 		Histogram.sharedResources.uintTex = new THREE.WebGLRenderTarget(Histogram.texSize, Histogram.texSize, options);
 	}
 
-	static PostProcessHistogram(rawData: Uint8Array) : Float32Array {
-		let result = new Float32Array(rawData.length >> 2);
-		result.forEach( (val, idx, arr) => {
-			arr[idx] = rawData[idx << 2]
-				| (rawData[(idx << 2) + 1] << 8)
-				| (rawData[(idx << 2) + 2] << 16);
-		} );
+	static PostProcessHistogram(rawData: Uint8Array) : Array<number> {
+		let result: Array<number> = new Array(rawData.length >> 2);
+		let dataView = new DataView(rawData.buffer);
+		for (let idx = 0; idx < result.length; ++idx)
+			// 1. common GPUs are little-endian
+			// 2. ignore alpha channel since it is always 1.0 (or 0xFF)
+			result[idx] = dataView.getUint32(idx << 2, true) & 0xFFFFFF;
 
 		let sumSamples = result.reduce( (sum, val) => val + sum );  // for normalization
 		if (sumSamples === 0) {
-			// when no presence of valid samples, we fake the histogram with only one sample in the first bucket
+			// if no valid sample is present, we fake the histogram with only one sample in the first bucket
 			result[0] = 1;
 			sumSamples = 1;
 		}
@@ -185,19 +185,8 @@ export class Histogram {
 		let normalFactor = 1 / sumSamples;
 		return result.map( (val) => val * normalFactor );
 	}
-/*
-	private static ConvertHalfArrayToFloat(halfArr: Uint16Array) : Float32Array {
-		let result = new Float32Array(halfArr.length);
-		halfArr.forEach( (val, idx) => {
-			let sign = (val >> 15);
-			let expo = (val >> 10 & 0x1F);  // 5 bits
-			let mantissa = (val & 0x3FF);  // 10 bits
-			result[idx] = (sign === 0 ? 1 : -1) * Math.pow(2, expo - 15) * (1 + mantissa / 0x400);  // bias = 2^(expo_bits - 1) - 1
-		} );
-		return result;
-	}
-*/
-	static FindIndex(data: Float32Array, percentage: number) : number {
+
+	static FindIndex(data: Array<number>, percentage: number) : number {
 		percentage = Math.max(Math.min(percentage, 1) , 0);  // clamp
 
 		let sum = 0;

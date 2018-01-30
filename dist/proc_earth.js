@@ -1107,12 +1107,10 @@ var ImgProc;
             Histogram.sharedResources.uintTex = new THREE.WebGLRenderTarget(Histogram.texSize, Histogram.texSize, options);
         };
         Histogram.PostProcessHistogram = function (rawData) {
-            var result = new Float32Array(rawData.length >> 2);
-            result.forEach(function (val, idx, arr) {
-                arr[idx] = rawData[idx << 2]
-                    | (rawData[(idx << 2) + 1] << 8)
-                    | (rawData[(idx << 2) + 2] << 16);
-            });
+            var result = new Array(rawData.length >> 2);
+            var dataView = new DataView(rawData.buffer);
+            for (var idx = 0; idx < result.length; ++idx)
+                result[idx] = dataView.getUint32(idx << 2, true) & 0xFFFFFF;
             var sumSamples = result.reduce(function (sum, val) { return val + sum; });
             if (sumSamples === 0) {
                 result[0] = 1;

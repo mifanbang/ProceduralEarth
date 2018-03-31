@@ -21,7 +21,7 @@ export class AnimatedFBMTextureParam {
 	public numIncreDraw: number = 16;  // must be 2^even_num
 	public displace: THREE.Vector3 = new THREE.Vector3(1.68, 54.38, 3.14);
 	public freqScaler: number = 1;
-	public step: THREE.Vector3 = new THREE.Vector3(0.03, -0.03, 0.03);
+	public step: THREE.Vector3 = new THREE.Vector3(1, -1, 1).multiplyScalar(0.03);
 	public keyFrameLength: number = 5;  // in seconds
 
 
@@ -63,6 +63,8 @@ export class AnimatedFBMTexture implements AnimatedCubeTexture {
 
 		this.texFront = new FBMTexture(fbmParams[0], geoRepo, texGradient);
 		this.texBack = new FBMTexture(fbmParams[1], geoRepo, texGradient);
+		this.texFront.SetPrevFBMTex(this.texBack);
+		this.texBack.SetPrevFBMTex(this.texFront);
 
 		this.lastUpdateTime = new Date().getTime();
 		this.numStep = 2;

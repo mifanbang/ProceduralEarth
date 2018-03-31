@@ -14,6 +14,8 @@
 
 
 uniform sampler2D	t_gradients;
+uniform samplerCube	t_prevFbm;
+uniform bool		u_usePrevFbm;
 
 uniform vec4		u_currGridCell;
 uniform vec3		u_displace1;
@@ -165,9 +167,13 @@ void main(void) {
 	gl_FragColor.ba = PackToRGB_888( fBmTerrain( CalcPerlinNoises(normal + u_displace2, 2.5), 2.5 ) );
 
 #elif FBM_GEN_TYPE == TYPE_CLOUDANIM
-	normal.y *= 1.25;
-	gl_FragColor.rg = PackToRGB_888( fBmBasic( CalcPerlinNoises(normal + u_displace1, 3.0) ) );
-	gl_FragColor.ba = PackToRGB_888( fBmBasic( CalcPerlinNoises(normal + u_displace2, 3.0) ) );
+	vec3 normalStretched = vec3(normal.x, normal.y * 1.25, normal.z);
+
+	if (u_usePrevFbm)
+		gl_FragColor.rg = textureCube(t_prevFbm, normal).ba;
+	else
+		gl_FragColor.rg = PackToRGB_888( fBmBasic( CalcPerlinNoises(normalStretched + u_displace1, 3.0) ) );
+	gl_FragColor.ba = PackToRGB_888( fBmBasic( CalcPerlinNoises(normalStretched + u_displace2, 3.0) ) );
 
 #elif FBM_GEN_TYPE == TYPE_MILKYWAY
 	gl_FragColor.rg = PackToRGB_888( fBmMilkyWay( CalcPerlinNoises(normal + u_displace1, 2.0) ) );

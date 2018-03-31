@@ -86,6 +86,7 @@ class FBMTextureRenderable extends Rendering.Renderable {
 	private param: FBMTextureParam;
 	private drawCounter: IncrementalCounter;
 	private texGradient: GradientTexture;
+	private texPrevFbm: FBMTexture | undefined;
 
 	private static readonly shaderVert: string = ShaderArchive.fbm_vs;
 	private static readonly shaderFrag: string = ShaderArchive.color_tl + ShaderArchive.fbm_fs;
@@ -97,6 +98,7 @@ class FBMTextureRenderable extends Rendering.Renderable {
 		this.param = param;
 		this.drawCounter = drawCounter;
 		this.texGradient = texGradient;
+		this.texPrevFbm = undefined;
 	}
 
 	protected CreateRenderItems(geoRepo: Resource.GeometryRepo) : Rendering.RenderItemList {
@@ -111,8 +113,14 @@ class FBMTextureRenderable extends Rendering.Renderable {
 	}
 
 	protected GetUniformFulfillments() : Rendering.UniFulList {
+		// For cloud textures, 't_prevFbm' should be bound to an existing cubemap
+		// from the beginning or Chrome will issue errors stating that the
+		// identical texture array is bound to both input and output at the same
+		// time. This browser behavior is not observed on Firefox.
 		return [
 			new Rendering.UniformFulfillment('t_gradients',		(uni) => uni.value = this.texGradient.GetTexture() ),
+			new Rendering.UniformFulfillment('t_prevFbm',		(uni) => uni.value = this.texPrevFbm ? this.texPrevFbm.GetTexture() : undefined ),
+			new Rendering.UniformFulfillment('u_usePrevFbm',	(uni) => uni.value = this.texPrevFbm ? this.texPrevFbm.IsReady() : false ),
 			new Rendering.UniformFulfillment('u_currGridCell',	(uni) => uni.value = this.GetGridCellCoord(this.drawCounter.GetCurrentCount()) ),
 			new Rendering.UniformFulfillment('u_displace1',		(uni) => uni.value = this.param.displace1 ),
 			new Rendering.UniformFulfillment('u_displace2',		(uni) => uni.value = this.param.displace2 ),
@@ -121,6 +129,10 @@ class FBMTextureRenderable extends Rendering.Renderable {
 	}
 
 	protected OnUpdatingUniform() : void {
+	}
+
+	SetPrevFBMTex(texPrevFbm: FBMTexture) : void {
+		this.texPrevFbm = texPrevFbm;
 	}
 
 	private GetGridCellCoord(index: number) : THREE.Vector4 {
@@ -147,6 +159,7 @@ class FBMTextureRenderable extends Rendering.Renderable {
 export class FBMTexture {
 	private texGradient: GradientTexture;
 	private param: FBMTextureParam;
+	private renderable: FBMTextureRenderable;
 	private cubeCamera: THREE.CubeCamera;
 	private drawCounter: IncrementalCounter;
 	private lastDrawStamp: number;  // time stamp
@@ -162,8 +175,8 @@ export class FBMTexture {
 		this.drawCounter = new IncrementalCounter(this.param.numIncreDraw);
 		this.lastDrawStamp = 0;
 
-		let renderable = new FBMTextureRenderable(this.param, this.drawCounter, this.texGradient);
-		this.pass = new Rendering.CubeMapPass([ renderable ], geoRepo);
+		this.renderable = new FBMTextureRenderable(this.param, this.drawCounter, this.texGradient);
+		this.pass = new Rendering.CubeMapPass([ this.renderable ], geoRepo);
 	}
 
 	Regenerate(renderer: THREE.WebGLRenderer) : void {
@@ -193,6 +206,10 @@ export class FBMTexture {
 
 	GetDisplace(index: 0 | 1) : THREE.Vector3 {
 		return (index === 0 ? this.param.displace1 : this.param.displace2).clone();
+	}
+
+	SetPrevFBMTex(texPrevFbm: FBMTexture) : void {
+		this.renderable.SetPrevFBMTex(texPrevFbm);
 	}
 
 	GetTexture() : THREE.CubeTexture {

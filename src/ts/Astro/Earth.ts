@@ -47,9 +47,11 @@ class Auxiliaries extends THREE.Scene {
 export class EarthParam {
 	// surface-related
 	public heightOcean: number = 0.2;  // less for larger ocean
-	public colorLand: THREE.Vector3 = new THREE.Vector3(0.036, 0.064, 0.034).multiplyScalar(2.239);  // sRGB #384937, albedo=0.1
-	public colorMountain: THREE.Vector3 = new THREE.Vector3(0.136, 0.117, 0.072).multiplyScalar(1.569);  // sRGB #67604D, albedo=0.17
-	public colorOcean: THREE.Vector3 = new THREE.Vector3(0.003, 0.023, 0.068).multiplyScalar(1.915);  // sRGB #132E4B, albedo=0.06
+
+	// all values in linear space. REF: astronaut photography ISS040-E-07078
+	public colorLand: THREE.Vector3 = new THREE.Vector3(0.0329, 0.0669, 0.04);  // forest, actiually
+	public colorMountain: THREE.Vector3 = new THREE.Vector3(0.0887, 0.0529, 0.0062).multiplyScalar(0.8);
+	public colorOcean: THREE.Vector3 = new THREE.Vector3(0, 0.0048, 0.087);  // deep and open ocean
 
 	// cloud-related
 	public cloudAmount: number = 0;  // greater fo more clouds

@@ -27,18 +27,18 @@ SurfaceProperties CalcSurfaceProperties(SurfaceParam param) {
 	float height = param.fbm;
 	float temperatureJitter = param.fbmAlt * 10.0;
 	float temperature = CalcTemperature(param.surfacePos, smoothstep(u_heightOcean, 1.0, height)) + temperatureJitter;  // re-scale height with smoothstep()
-	float bumpScaler = 5.6e-3;  // default value
+	float bumpScaler = 2.5e-2;  // default value
 
 	if (temperature <= 0.0) {
 		result.albedo = COLOR_SNOW;
 		result.glossiness = 0.1;
 		result.specularColor = vec3(0.01801);  // water ice
-		bumpScaler = (height > u_heightOcean ? 3.6e-3 : 1e-5);
+		bumpScaler = (height > u_heightOcean ? 1e-2 : 1e-4);
 	}
 	else if (height > u_heightOcean) {
-		result.albedo = mix(u_colorMountain, u_colorLand, clamp(temperature / 20.0, 0.0, 1.0));
+		result.albedo = mix(u_colorMountain, u_colorLand, clamp(temperature / 18.0, 0.0, 1.0));
 		result.glossiness = 0.0;
-		bumpScaler *= max(height - u_heightOcean, 0.6);  // flatten normal based on altitude
+		bumpScaler *= pow(min(height - u_heightOcean, 1.0), 0.5);  // flatten normal based on altitude
 	}
 	else {
 		result.albedo = u_colorOcean;

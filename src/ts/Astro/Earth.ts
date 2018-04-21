@@ -49,9 +49,10 @@ export class EarthParam {
 	public heightOcean: number = 0.2;  // less for larger ocean
 
 	// all values in linear space. REF: astronaut photography ISS040-E-07078
-	public colorLand: THREE.Vector3 = new THREE.Vector3(0.0329, 0.0669, 0.04);  // forest, actiually
-	public colorMountain: THREE.Vector3 = new THREE.Vector3(0.0887, 0.0529, 0.0062).multiplyScalar(0.8);
-	public colorOcean: THREE.Vector3 = new THREE.Vector3(0, 0.0048, 0.087);  // deep and open ocean
+	public colorLand: THREE.Vector3 = new THREE.Vector3(0.0329, 0.0669, 0.0400);  // forest, actiually
+	public colorMountain: THREE.Vector3 = new THREE.Vector3(0.1020, 0.0625, 0.0639);
+	public colorOcean: THREE.Vector3 = new THREE.Vector3(0, 0.0048, 0.0870);  // deep and open ocean
+	public colorSand: THREE.Vector3 = new THREE.Vector3(0.2381, 0.2244, 0.1746).multiplyScalar(0.8);
 
 	// cloud-related
 	public cloudAmount: number = 0;  // greater fo more clouds
@@ -69,6 +70,7 @@ export class EarthParam {
 		result.colorLand = this.colorLand;
 		result.colorMountain = this.colorMountain;
 		result.colorOcean = this.colorOcean;
+		result.colorSand = this.colorSand;
 		result.cloudAmount = this.cloudAmount;
 		result.cloudHeight = this.cloudHeight;
 		result.radius = this.radius;
@@ -82,6 +84,7 @@ export class EarthParam {
 		this.colorLand.copy(other.colorLand);
 		this.colorMountain.copy(other.colorMountain);
 		this.colorOcean.copy(other.colorOcean);
+		this.colorSand.copy(other.colorSand);
 		this.cloudAmount = other.cloudAmount;
 		this.cloudHeight = other.cloudHeight;
 		this.radius = other.radius;
@@ -192,6 +195,7 @@ export class Earth extends Rendering.Renderable {
 			new Rendering.UniformFulfillment('u_colorLand',		(uni) => uni.value = param.colorLand ),
 			new Rendering.UniformFulfillment('u_colorMountain',	(uni) => uni.value = param.colorMountain ),
 			new Rendering.UniformFulfillment('u_colorOcean',	(uni) => uni.value = param.colorOcean ),
+			new Rendering.UniformFulfillment('u_colorSand',		(uni) => uni.value = param.colorSand ),
 
 			new Rendering.UniformFulfillment('u_planetRadius',	(uni) => uni.value = paramAtmo.planetRadius ),
 			new Rendering.UniformFulfillment('u_cloudHeight',	(uni) => uni.value = param.cloudHeight ),  // the bottom of clouds

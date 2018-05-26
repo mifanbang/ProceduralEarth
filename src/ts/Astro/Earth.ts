@@ -22,27 +22,6 @@ namespace Astro {
 
 
 
-// rotation axis, etc.
-class Auxiliaries extends THREE.Scene {
-	constructor() {
-		super();
-
-		this.add(Auxiliaries.CreateRotationAxis());
-	}
-
-	private static CreateRotationAxis() : THREE.Object3D {
-		let geo = new THREE.BufferGeometry();
-		let vertices = new Float32Array( [
-			0, 1.2, 0,
-			0, -1.2, 0
-		] );
-		geo.addAttribute('position', new THREE.BufferAttribute(vertices, 3));
-		return new THREE.LineSegments(geo, new THREE.LineBasicMaterial( { color: 0x60FFFF, linewidth: 1 } ));
-	}
-}
-
-
-
 // REF: "Albedo". https://en.wikipedia.org/wiki/Albedo
 export class EarthParam {
 	// surface-related

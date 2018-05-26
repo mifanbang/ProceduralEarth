@@ -619,24 +619,6 @@ var Astro;
 })(Astro || (Astro = {}));
 var Astro;
 (function (Astro) {
-    var Auxiliaries = (function (_super) {
-        __extends(Auxiliaries, _super);
-        function Auxiliaries() {
-            var _this = _super.call(this) || this;
-            _this.add(Auxiliaries.CreateRotationAxis());
-            return _this;
-        }
-        Auxiliaries.CreateRotationAxis = function () {
-            var geo = new THREE.BufferGeometry();
-            var vertices = new Float32Array([
-                0, 1.2, 0,
-                0, -1.2, 0
-            ]);
-            geo.addAttribute('position', new THREE.BufferAttribute(vertices, 3));
-            return new THREE.LineSegments(geo, new THREE.LineBasicMaterial({ color: 0x60FFFF, linewidth: 1 }));
-        };
-        return Auxiliaries;
-    }(THREE.Scene));
     var EarthParam = (function () {
         function EarthParam() {
             this.heightOcean = 0.2;

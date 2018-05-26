@@ -62,7 +62,7 @@ function newer(targetFile) {
 	);
 }
 
-function check_empty(funcSomethingExist, funcEmpty) {
+function checkEmpty(funcSomethingExist, funcEmpty) {
 	return gatherNames( (array) => {
 		if (array.length > 0)
 			funcSomethingExist();
@@ -75,7 +75,7 @@ function check_empty(funcSomethingExist, funcEmpty) {
 
 // task generators -------------------------------------------------------------
 
-function MakeFunc_BuildTool(srcFiles, outFile) {
+function genFuncToBuildTool(srcFiles, outFile) {
 	let funcCompileTool = (resolve, reject) => {
 		let hasError = false;
 		let stream = gulp.src(srcFiles)
@@ -106,7 +106,7 @@ function MakeFunc_BuildTool(srcFiles, outFile) {
 
 // $script: .js file to run
 // $target: output file of $script to check timestamp
-function MakeFunc_RunTool(script, target, inputs) {
+function genFuncToRunTool(script, target, inputs) {
 	return function (callback) {
 		let funcPackShader = () =>
 			new Promise( (resolve, reject) => {
@@ -127,13 +127,13 @@ function MakeFunc_RunTool(script, target, inputs) {
 		if (typeof inputs !== 'undefined') {
 			let stream = gulp.src(inputs)
 				.pipe( newer(target) )
-				.pipe( check_empty(funcPackShader, () => callback() ) )
+				.pipe( checkEmpty(funcPackShader, () => callback() ) )
 				.resume();
 		}
 		else if (typeof target !== 'undefined') {
 			let stream = gulp.src(script)
 				.pipe( newer(target) )
-				.pipe( check_empty(funcPackShader, () => callback() ) )
+				.pipe( checkEmpty(funcPackShader, () => callback() ) )
 				.resume();
 		}
 	};
@@ -144,9 +144,9 @@ function MakeFunc_RunTool(script, target, inputs) {
 // export definition -----------------------------------------------------------
 
 module.exports = {
-	FunctionFactory: {
-		BuildTool: MakeFunc_BuildTool,
-		RunTool: MakeFunc_RunTool
+	functionFactory: {
+		buildTool: genFuncToBuildTool,
+		runTool: genFuncToRunTool
 	}
 };
 

@@ -2,7 +2,7 @@
 let gulp = require('gulp');
 let ts = require('gulp-typescript');
 
-let funcFactory = require('./build/gulp_myutil.js').FunctionFactory;
+let funcFactory = require('./build/gulp_myutil.js').functionFactory;
 
 
 const src = {
@@ -19,10 +19,10 @@ const src = {
 
 // Gulp tasks ------------------------------------------------------------------
 
-let buildtl_shader = funcFactory.BuildTool(src.tlShaderBuilder, 'build/build_shaders.js');
-let buildtl_airmass = funcFactory.BuildTool(src.tlAirMassBuilder, 'build/build_airmass.js');
-let runtl_shader = funcFactory.RunTool('build/build_shaders.js', 'src/ts/Generated/ShaderArchive.ts', src.glsl);
-let runtl_airmass = funcFactory.RunTool('build/build_airmass.js', 'src/ts/Generated/AirMassData.ts');
+let taskBuildToolForShader = funcFactory.buildTool(src.tlShaderBuilder, 'build/build_shaders.js');
+let taskBuildToolForAirmass = funcFactory.buildTool(src.tlAirMassBuilder, 'build/build_airmass.js');
+let taskRunToolForShader = funcFactory.runTool('build/build_shaders.js', 'src/ts/Generated/ShaderArchive.ts', src.glsl);
+let taskRunToolForAirmass = funcFactory.runTool('build/build_airmass.js', 'src/ts/Generated/AirMassData.ts');
 
 function TaskMain(callback) {
 	let hasError = false;
@@ -42,15 +42,15 @@ function TaskMain(callback) {
 }
 
 // setting display names
-buildtl_shader.displayName = 'buildtl_shader';
-buildtl_airmass.displayName = 'buildtl_airmass';
-runtl_shader.displayName = 'runtl_shader';
-runtl_airmass.displayName = 'runtl_airmass';
+taskBuildToolForShader.displayName = 'build_tool_shader';
+taskBuildToolForAirmass.displayName = 'build_tool_airmass';
+taskRunToolForShader.displayName = 'run_tool_shader';
+taskRunToolForAirmass.displayName = 'run_tool_airmass';
 TaskMain.displayName = 'main';
 
 
-gulp.task('shader', gulp.series(buildtl_shader, runtl_shader));
-gulp.task('airmass', gulp.series(buildtl_airmass, runtl_airmass));
+gulp.task('shader', gulp.series(taskBuildToolForShader, taskRunToolForShader));
+gulp.task('airmass', gulp.series(taskBuildToolForAirmass, taskRunToolForAirmass));
 
 let main = gulp.series(gulp.parallel('shader', 'airmass'), TaskMain);
 gulp.task('default', main);

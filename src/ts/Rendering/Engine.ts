@@ -1,8 +1,10 @@
 /**
+ * This file is a part of ProceduralEarth.
+ *
  * ProceduralEarth - WebGL-based renderer to procedurally generate Earths
  * https://debug.tw/proc_earth
  *
- * Copyright (C) 2017 Mifan Bang <https://debug.tw>
+ * Copyright (C) 2017-2018 Mifan Bang <https://debug.tw>
  *
  * Licensed under the MIT License.
  */

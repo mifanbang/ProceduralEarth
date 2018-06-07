@@ -44,7 +44,7 @@ Before building the project for the very first time, run `npm install` inside th
 
 ## Copyright
 
-Copyright (C) 2017 Mifan Bang <https://debug.tw>
+Copyright (C) 2017-2018 Mifan Bang <https://debug.tw>
 
 Should there not be many great works already well done, this project would not exist. This project is distributed with various parts of the following works:
 

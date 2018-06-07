@@ -2463,6 +2463,7 @@ var Application = (function () {
     };
     Application.prototype.Render = function () {
         this.uiOverlay.Update();
+        this.control.zoomSpeed = this.camera.position.distanceTo(this.control.target) / 300.0;
         this.control.update();
         this.camera.updateMatrixWorld(true);
         this.canvas.clear();

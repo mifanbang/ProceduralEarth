@@ -2358,7 +2358,11 @@ var Application = (function () {
     }
     Application.prototype.StartRendering = function () {
         var _this = this;
-        var callback = TryAndCatch(function () { return _this.Render(); }, Application.OnError);
+        var renderSequence = function () {
+            _this.OnPreRender();
+            _this.Render();
+        };
+        var callback = TryAndCatch(renderSequence, Application.OnError);
         Rendering.Manager.instance.RegisterTask(callback);
     };
     Application.prototype.SetupCamera = function () {
@@ -2461,11 +2465,13 @@ var Application = (function () {
             enableList.push(2);
         this.uiOverlay.SetButtonVisibility(enableList, true);
     };
-    Application.prototype.Render = function () {
+    Application.prototype.OnPreRender = function () {
         this.uiOverlay.Update();
-        this.control.zoomSpeed = this.camera.position.distanceTo(this.control.target) / 300.0;
+        this.control.zoomSpeed = Math.max(this.camera.position.distanceTo(this.control.target) / 200.0, 0.25);
         this.control.update();
         this.camera.updateMatrixWorld(true);
+    };
+    Application.prototype.Render = function () {
         this.canvas.clear();
         this.renderEngine.Render();
     };

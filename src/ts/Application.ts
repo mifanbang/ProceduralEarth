@@ -63,7 +63,11 @@ class Application {
 	}
 
 	StartRendering() : void {
-		let callback = TryAndCatch( () => this.Render(), Application.OnError );
+		let renderSequence = () => {
+			this.OnPreRender();
+			this.Render();
+		};
+		let callback = TryAndCatch(renderSequence, Application.OnError);
 		Rendering.Manager.instance.RegisterTask(callback);
 	}
 
@@ -182,12 +186,14 @@ class Application {
 		this.uiOverlay.SetButtonVisibility(enableList, true);
 	}
 
-	private Render() : void {
+	private OnPreRender() : void {
 		this.uiOverlay.Update();
-		this.control.zoomSpeed = this.camera.position.distanceTo(this.control.target) / 300.0;
+		this.control.zoomSpeed = Math.max(this.camera.position.distanceTo(this.control.target) / 200.0, 0.25);
 		this.control.update();
 		this.camera.updateMatrixWorld(true);
+	}
 
+	private Render() : void {
 		this.canvas.clear();
 		this.renderEngine.Render();
 	}

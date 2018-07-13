@@ -1712,10 +1712,12 @@ var PostEffect;
     var Param = (function () {
         function Param() {
             this.ev = -0.7;
+            this.evOffset = 0;
             this.autoExposure = true;
         }
         Param.prototype.Copy = function (other) {
             this.ev = other.ev;
+            this.evOffset = other.evOffset;
             this.autoExposure = other.autoExposure;
         };
         return Param;
@@ -1738,7 +1740,7 @@ var PostEffect;
                 new Rendering.UniformFulfillment('u_random', function (uni) { return uni.value = new THREE.Vector2(Math.random(), Math.random()).multiplyScalar(5); }),
                 new Rendering.UniformFulfillment('t_color', function (uni, ctx) { return uni.value = ctx.srcBuffer ? ctx.srcBuffer.texture : 0; }),
                 new Rendering.UniformFulfillment('u_invImgSize', function (uni, ctx) { return uni.value = ctx.srcBuffer ? new THREE.Vector2(1 / ctx.srcBuffer.width, 1 / ctx.srcBuffer.height) : 0; }),
-                new Rendering.UniformFulfillment('u_exposure', function (uni) { return uni.value = Math.pow(10, _this.param.ev); })
+                new Rendering.UniformFulfillment('u_exposure', function (uni) { return uni.value = Math.pow(10, _this.param.ev + _this.param.evOffset); })
             ];
         };
         Renderable.prototype.OnUpdatingUniform = function () {
@@ -1975,10 +1977,13 @@ var UI;
         Configure.SetupFolderCamera = function (gui, data, translation) {
             var folderPostEffect = gui.addFolder('Camera');
             var proxy = { resetCamera: function () { return data.delegates.Invoke(ConfigCallbackType.ResetCamera); } };
+            folderPostEffect.add(data.paramPostEffect, 'evOffset', -2, 2)
+                .name('EV')
+                .step(0.01);
             folderPostEffect.add(data.paramPostEffect, 'autoExposure')
                 .name('Auto Exposure');
             folderPostEffect.add(proxy, 'resetCamera')
-                .name('Reset Camera');
+                .name('Reset Camera Position');
             folderPostEffect.open();
         };
         Configure.prototype.OverrideCloseButton = function (domElement) {

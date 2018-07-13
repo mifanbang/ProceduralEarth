@@ -23,11 +23,13 @@ namespace PostEffect {
 
 export class Param {
 	public ev: number = -0.7;
+	public evOffset: number = 0;  // applied to .ev in all cases
 	public autoExposure: boolean = true;
 
 
 	Copy(other: Param) : void {
-		this.ev = other.ev;
+		this.ev= other.ev;
+		this.evOffset = other.evOffset;
 		this.autoExposure = other.autoExposure;
 	}
 }
@@ -61,7 +63,7 @@ export class Renderable extends Rendering.Renderable {
 			new Rendering.UniformFulfillment('u_random',	(uni) => uni.value = new THREE.Vector2(Math.random(), Math.random()).multiplyScalar(5) ),
 			new Rendering.UniformFulfillment('t_color',		(uni, ctx) => uni.value = ctx.srcBuffer ? ctx.srcBuffer.texture : 0 ),
 			new Rendering.UniformFulfillment('u_invImgSize',(uni, ctx) => uni.value = ctx.srcBuffer ? new THREE.Vector2(1 / ctx.srcBuffer.width, 1 / ctx.srcBuffer.height) : 0 ),
-			new Rendering.UniformFulfillment('u_exposure',	(uni) => uni.value = Math.pow(10, this.param.ev) )
+			new Rendering.UniformFulfillment('u_exposure',	(uni) => uni.value = Math.pow(10, this.param.ev + this.param.evOffset) )
 		];
 	}
 

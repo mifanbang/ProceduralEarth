@@ -206,10 +206,13 @@ export class Configure implements UIBase {
 		let folderPostEffect = gui.addFolder('Camera');
 		let proxy = { resetCamera: () => data.delegates.Invoke(ConfigCallbackType.ResetCamera) };
 
+		folderPostEffect.add(data.paramPostEffect, 'evOffset', -2, 2)
+			.name('EV')
+			.step(0.01);
 		folderPostEffect.add(data.paramPostEffect, 'autoExposure')
 			.name('Auto Exposure');
 		folderPostEffect.add(proxy, 'resetCamera')
-			.name('Reset Camera');
+			.name('Reset Camera Position');
 
 		folderPostEffect.open();
 	}

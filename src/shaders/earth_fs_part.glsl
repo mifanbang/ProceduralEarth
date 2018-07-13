@@ -54,7 +54,10 @@ SurfaceProperties CalcSurfaceProperties(SurfaceParam param) {
 		float depth = (u_heightOcean - height) * HEIGHTMAP_TO_METER;
 		if (depth < 300.0) {
 			const vec3 ALPHA_OCEAN = vec3(-0.34, -0.0325, -0.00635);  // unit: m^-1
-			vec3 absorption = exp(ALPHA_OCEAN * depth);  // Beer's law
+			const float MAX_JITTER_IN_METERS = 75.0;
+			const float JITTER_OFFSET = 0.15;  // tendency of deepening
+			float depthJitter = param.fbmAlt * MAX_JITTER_IN_METERS + JITTER_OFFSET;
+			vec3 absorption = exp(ALPHA_OCEAN * max(depth + depthJitter, 0.0));  // Beer's law
 			result.albedo += u_colorSand * absorption * absorption;  // absorbed twice: Sun-to-seabed and seabed-to-eye
 		}
 	}

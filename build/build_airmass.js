@@ -144,12 +144,14 @@ function GenerateCodeJS(texData) {
 }
 function Main() {
     let GetTimestamp = () => Date.now();
-    fs.writeFile(CONFIG.outputFileTS, GenerateCodeTS());
+    let WriteFileCallback = (err) => { if (err)
+        throw err; };
+    fs.writeFile(CONFIG.outputFileTS, GenerateCodeTS(), WriteFileCallback);
     let timestampPre = GetTimestamp();
     let param = new AtmosphericParam();
     let texData = PrecomputeTable(param);
     let timestampPost = GetTimestamp();
-    fs.writeFile(CONFIG.outputFileJS, GenerateCodeJS(texData));
+    fs.writeFile(CONFIG.outputFileJS, GenerateCodeJS(texData), WriteFileCallback);
     console.log('TransmittanceData.ts was built successfully in ' + (timestampPost - timestampPre) * 1e-3 + ' s.');
 }
 Main();

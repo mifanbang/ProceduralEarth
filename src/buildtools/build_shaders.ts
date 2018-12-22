@@ -45,7 +45,7 @@ function Main() : void {
 	} );
 	outputCode.push('}');
 
-	fs.writeFile(CONFIG.outputFile, outputCode.join('\n'));
+	fs.writeFileSync(CONFIG.outputFile, outputCode.join('\n'));
 
 	console.log('ShaderArchive.ts was built successfully.');
 }

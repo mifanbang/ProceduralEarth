@@ -30,7 +30,7 @@ function Main() {
         outputCode.push(['\tstatic readonly ', shaderName, ': string = \'', content, '\';'].join(''));
     });
     outputCode.push('}');
-    fs.writeFile(CONFIG.outputFile, outputCode.join('\n'));
+    fs.writeFileSync(CONFIG.outputFile, outputCode.join('\n'));
     console.log('ShaderArchive.ts was built successfully.');
 }
 Main();
